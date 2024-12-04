@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Pastel Bakery</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -31,47 +32,133 @@
         <a href="#about" class="text-lg text-black hover:text-[var(--pinktua)]">About</a>
         <a href="#product" class="text-lg text-black hover:text-[var(--pinktua)]">Product</a>
         <a href="#footer" class="text-lg text-black hover:text-[var(--pinktua)]">Contact</a>
-        <!-- User Icon -->
-        <button onclick="toggleLoginModal()" class="flex items-center text-black hover:text-[var(--pinktua)]">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 19.071a1 1 0 001.415 0L12 13.707l5.464 5.364a1 1 0 101.415-1.414l-5.657-5.657a2 2 0 00-2.828 0l-5.657 5.657a1 1 0 000 1.414z" />
-                <circle cx="12" cy="8" r="4" />
-            </svg>
-            <span class="ml-2 text-lg">User</span>
-        </button>
-    </nav>
+       <!-- User Icon -->
+<button onclick="toggleAuthModal('login')" class="flex items-center text-black hover:text-[var(--pinktua)]">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 19.071a1 1 0 001.415 0L12 13.707l5.464 5.364a1 1 0 101.415-1.414l-5.657-5.657a2 2 0 00-2.828 0l-5.657 5.657a1 1 0 000 1.414z" />
+        <circle cx="12" cy="8" r="4" />
+    </svg>
+    <span onclick="toggleAuthModal('login')" class="ml-2 text-lg">User</span>
+</button>
+</nav>
 </header>
 
-<!-- Login Modal -->
-<div id="loginModal" class="fixed inset-0 z-50 hidden bg-black bg-opacity-50 flex items-center justify-center">
+<!-- Login/Register Modal -->
+<div id="authModal" class="fixed inset-0 z-50 hidden bg-black bg-opacity-50 flex items-center justify-center">
     <div class="bg-white rounded-lg shadow-lg w-11/12 max-w-md">
         <!-- Modal Header -->
         <div class="flex justify-between items-center px-4 py-2 border-b">
-            <h3 class="text-2xl font-bold">Login</h3>
-            <button onclick="toggleLoginModal()" class="text-gray-600 hover:text-red-500 text-2xl">&times;</button>
+            <h3 id="modalTitle" class="text-2xl font-bold">Login</h3>
+            <button onclick="toggleAuthModal()" class="text-gray-600 hover:text-red-500 text-2xl">&times;</button>
         </div>
         <!-- Modal Body -->
         <div class="p-6">
-            <form>
-                <label for="email" class="block mb-2 text-lg font-semibold">Email</label>
-                <input id="email" type="email" placeholder="Enter your email" class="w-full px-4 py-2 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-200" required>
+            <!-- Login Form -->
+            <form id="loginForm" class="hidden">
+                <label for="loginEmail" class="block mb-2 text-lg font-semibold">Email</label>
+                <input id="loginEmail" type="email" placeholder="Enter your email" class="w-full px-4 py-2 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-200" required>
                 
-                <label for="password" class="block mb-2 text-lg font-semibold">Password</label>
-                <input id="password" type="password" placeholder="Enter your password" class="w-full px-4 py-2 mb-6 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-200" required>
+                <label for="loginPassword" class="block mb-2 text-lg font-semibold">Password</label>
+                <input id="loginPassword" type="password" placeholder="Enter your password" class="w-full px-4 py-2 mb-6 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-200" required>
                 
                 <button type="submit" class="w-full px-4 py-2 text-white bg-red-400 rounded-lg hover:bg-red-600">Login</button>
+                
+                <!-- Register Prompt -->
+                <p class="mt-4 text-center text-gray-600">
+                    Don't have an account? <span onclick="toggleAuthModal('register')" class="text-red-400 hover:underline cursor-pointer">Register Now</span>
+                </p>
             </form>
+            
+            <!-- Register Form -->
+            <form id="registerForm" action="{{ route('register.process') }}" method="POST" class="space-y-4">
+            @csrf
+            <label for="registerName" class="block mb-2 text-lg font-semibold">Name</label>
+            <input id="registerName" name="name" type="text" placeholder="Enter your name"
+                class="w-full px-4 py-2 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-200" required>
+            
+            <label for="registerEmail" class="block mb-2 text-lg font-semibold">Email</label>
+            <input id="registerEmail" name="email" type="email" placeholder="Enter your email"
+                class="w-full px-4 py-2 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-200" required>
+            
+            <label for="registerPassword" class="block mb-2 text-lg font-semibold">Password</label>
+            <input id="registerPassword" name="password" type="password" placeholder="at least password 8 character"
+                class="w-full px-4 py-2 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-200" required>
+            
+            <label for="registerPasswordConfirmation" class="block mb-2 text-lg font-semibold">Confirm Password</label>
+            <input id="registerPasswordConfirmation" name="password_confirmation" type="password" placeholder="Confirm your password"
+                class="w-full px-4 py-2 mb-6 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-200" required>
+
+            <button type="submit" class="w-full px-4 py-2 text-white bg-red-400 rounded-lg hover:bg-red-600">Create</button>
+
+            <p class="mt-4 text-center text-gray-600">
+                Already have an account? <a href="#" onclick="toggleAuthModal('login')" class="text-red-400 hover:underline cursor-pointer">Login</a>
+            </p>
+        </form>
+
         </div>
     </div>
 </div>
 
 <script>
-    // Toggle Login Modal
-    function toggleLoginModal() {
-        const modal = document.getElementById('loginModal');
-        modal.classList.toggle('hidden');
+    document.getElementById('registerForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        // Ambil data dari form
+        const formData = new FormData(this);
+        const data = Object.fromEntries(formData.entries());
+
+        try {
+            const response = await fetch('/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                },
+                body: JSON.stringify(data),
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                alert(result.message); // Tampilkan pesan sukses
+                toggleAuthModal('login')
+            } else {
+                // Jika respons bukan JSON, coba lihat isi sebenarnya
+                const errorText = await response.text();
+                console.error('Server Error:', errorText); // Debug respons HTML
+                alert('An error occurred. Please check console for details.');
+            }
+        } catch (err) {
+            console.error('Fetch Error:', err);
+            alert('Failed to process the request.');
+        }
+
+    });
+
+    // Toggle Login/Register Modal
+    function toggleAuthModal(type = null) {
+    const modal = document.getElementById('authModal'); // Modal utama
+    const loginForm = document.getElementById('loginForm'); // Form login
+    const registerForm = document.getElementById('registerForm'); // Form register
+    const modalTitle = document.getElementById('modalTitle'); // Judul modal
+
+    if (type === 'login') {
+        // Tampilkan form login, sembunyikan form register
+        loginForm.classList.remove('hidden');
+        registerForm.classList.add('hidden');
+        modalTitle.textContent = 'Login';
+    } else if (type === 'register') {
+        // Tampilkan form register, sembunyikan form login
+        loginForm.classList.add('hidden');
+        registerForm.classList.remove('hidden');
+        modalTitle.textContent = 'Register';
     }
+
+    // Tampilkan modal jika belum terlihat
+    modal.classList.remove('hidden');
+}
+
 </script>
+
 
 
     <!-- Home Section -->
@@ -117,24 +204,11 @@
         <h1 class="mb-8 text-4xl font-bold text-center">Our <span class="text-red-200">Products</span></h1>
         <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
             <!-- Product Cards -->
+            @foreach ($product as $produk)
             <div class="p-4 border rounded-lg shadow hover:shadow-lg cursor-pointer" onclick="openModal('Tiramisu', 'Creamy and rich tiramisu with layers of coffee-soaked sponge and mascarpone cream. Perfect for coffee lovers!', 50000, '/Aset image/tiramisu.png')">
-                <img src="/Aset image/Group tiramisu.png" alt="Tiramisu" class="w-full rounded-lg">
+            <img src="{{ Storage::url($produk->image) }}" alt="{{ $produk->title }}" class="w-full rounded-lg">
             </div>
-            <div class="p-4 border rounded-lg shadow hover:shadow-lg cursor-pointer" onclick="openModal('Cupcake', 'Moist vanilla cupcakes topped with smooth buttercream frosting and colorful sprinkles. A fun treat for all occasions!', 30000, '/Aset image/cupcake.png')">
-                <img src="/Aset image/Group cupcake.png" alt="Cupcake" class="w-full rounded-lg">
-            </div>
-            <div class="p-4 border rounded-lg shadow hover:shadow-lg cursor-pointer" onclick="openModal('Donut', 'Soft and fluffy donuts glazed with a sweet topping and decorated with sprinkles. A classic favorite!', 20000, '/Aset image/donut1.png')">
-                <img src="/Aset image/donut.png" alt="Donut" class="w-full rounded-lg">
-            </div>
-            <div class="p-4 border rounded-lg shadow hover:shadow-lg cursor-pointer" onclick="openModal('Brownies', 'Rich and fudgy brownies with a crackly top. Perfect for chocolate lovers!', 40000, '/Aset image/brownies (2).png')">
-                <img src="/Aset image/Group brownies.png" alt="Brownies" class="w-full rounded-lg">
-            </div>
-            <div class="p-4 border rounded-lg shadow hover:shadow-lg cursor-pointer" onclick="openModal('Strawberry Cake', 'Soft sponge cake layered with fresh strawberries and whipped cream. A sweet delight for special occasions!', 60000, '/Aset image/strawberry.png')">
-                <img src="/Aset image/Group strawberry cake.png" alt="Strawberry Cake" class="w-full rounded-lg">
-            </div>
-            <div class="p-4 border rounded-lg shadow hover:shadow-lg cursor-pointer" onclick="openModal('Chocolate Cake', 'Decadent chocolate cake with rich chocolate frosting. A must-try for chocolate enthusiasts!', 70000, '/Aset image/coklat_cake.png')">
-                <img src="/Aset image/Group  coklat cake.png" alt="Chocolate Cake" class="w-full rounded-lg">
-            </div>
+            @endforeach
         </div>
     </div>
 </section>
